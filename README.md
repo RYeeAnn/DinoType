@@ -1,0 +1,1 @@
+To run the game : Navigate into the DynoType folder and within the terminal, enter python app.py. (or python3 app.py)

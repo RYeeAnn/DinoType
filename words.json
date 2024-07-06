@@ -1,0 +1,47 @@
+{
+    "levels": {
+        "1": {
+            "description": "Easy",
+            "words": [
+                "cat", "dog", "fish", "bird", "cow", "pig", "hen", "bee", "bat", "ant",
+                "sun", "moon", "star", "sky", "tree", "leaf", "grass", "rock", "sand", "mud",
+                "ball", "toy", "book", "pen", "cup", "mug", "dish", "fork", "spoon", "knife",
+                "hat", "cap", "shoe", "sock", "shirt", "coat", "vest", "belt", "scarf", "glove",
+                "red", "blue", "green", "yellow", "black", "white", "pink", "orange", "purple", "brown",
+                "man", "woman", "boy", "girl", "baby", "child", "friend", "dad", "mom", "grandpa",
+                "house", "home", "yard", "door", "window", "roof", "wall", "floor", "room", "bed",
+                "apple", "pear", "grape", "plum", "peach", "cherry", "berry", "lemon", "lime", "fig",
+                "car", "bus", "bike", "boat", "train", "plane", "truck", "jeep", "van", "cab",
+                "run", "jump", "walk", "talk", "read", "write", "draw", "sing", "play", "laugh",
+                "happy", "sad", "angry", "glad", "kind", "mean", "good", "bad", "tall", "short",
+                "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"
+            ]
+        },
+        "2": {
+            "description": "Medium",
+            "words": [
+                "action", "better", "camera", "danger", "effort", "family", "garden", "happen", "ignore", "jacket",
+                "kindness", "leader", "manage", "nature", "office", "people", "quiet", "reason", "safety", "travel",
+                "unique", "victory", "weather", "yellow", "zebra", "beauty", "create", "decide", "energy", "friendship",
+                "gentle", "history", "inspire", "jungle", "knowledge", "library", "message", "network", "ocean", "patient",
+                "quality", "respect", "service", "teacher", "understand", "village", "wonder", "xenon", "youth", "zeal",
+                "basket", "capture", "demand", "effect", "future", "gentle", "honor", "ignore", "journey", "kingdom",
+                "legend", "memory", "notice", "option", "problem", "question", "record", "simple", "trust", "update",
+                "value", "wealth", "young", "zealous", "active", "bright", "clever", "dream", "enjoy", "famous"
+            ]
+        },
+        "3": {
+            "description": "Hard",
+            "words": [
+                "abundance", "bureaucracy", "consequence", "deteriorate", "exaggerate", "facilitate", "gregarious", "hypothetical", "impartial", "juxtaposition",
+                "kaleidoscope", "litigation", "metamorphosis", "nefarious", "obfuscate", "paradigm", "quintessential", "reciprocity", "superfluous", "transcend",
+                "ubiquitous", "vicarious", "whimsical", "xenophobia", "yesterday", "zephyr", "acquiesce", "belligerent", "circumvent", "debilitate",
+                "effervescent", "fathomable", "gratuitous", "haphazard", "idiosyncrasy", "juxtapose", "kinesthetic", "lachrymose", "magnanimous", "nebulous",
+                "obsequious", "precarious", "quintessence", "recalcitrant", "sanctimonious", "temerity", "umbrage", "vociferous", "winsome", "xylophone",
+                "yearn", "zenith", "aberration", "beneficiary", "cacophony", "defenestration", "enigmatic", "fortuitous", "grandiose", "harangue",
+                "impetuous", "jocund", "knell", "luminous", "malfeasance", "nonchalant", "obstreperous", "perspicacious", "quagmire", "reprehensible",
+                "serendipity", "tantamount", "unabashed", "verisimilitude", "wanton", "xenogenesis", "yawner", "zealot", "ascertain", "benefactor"
+            ]
+        }
+    }
+}
