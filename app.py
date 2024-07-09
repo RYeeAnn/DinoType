@@ -1,6 +1,7 @@
 import pygame
 import random
 import json
+import math
 from random_word import RandomWords
 
 # Pygame setup
@@ -27,9 +28,12 @@ level_images_orig = [
     pygame.image.load('assets/images/Levels/4.png')
 ]
 
-home_image = pygame.image.load('assets/images/dinoCharactersVersion1.1/dinoCharacters-display.gif')
-button_image = pygame.image.load('assets/images/Space_Game_GUI_PNG/PNG/Main_Menu/Start_BTN.png')
+button_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Idle.png')
+button_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Click.png')
 asteroid_image = pygame.image.load('assets/images/—Pngtree—meteorite space fire_13340354.png')
+volume_mute_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-None-Idle.png')
+volume_up_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-Three-Idle.png')
+volume_down_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-Two-Idle.png')
 
 # Initialize the random word generator
 with open('words.json', 'r') as f:
@@ -41,9 +45,9 @@ with open('words.json', 'r') as f:
 level_4 = RandomWords()
 
 class Player:
-    def __init__(self, image, scale=6):
+    def __init__(self, image, scale=4):
         self.image = pygame.transform.scale(image, (image.get_width() * scale, image.get_height() * scale))
-        self.rect = self.image.get_rect(center=(WIDTH / 2, HEIGHT / 1.3))
+        self.rect = self.image.get_rect(center=(WIDTH / 2, HEIGHT / 1.26))
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -53,9 +57,24 @@ class Asteroid:
         self.image = pygame.transform.scale(asteroid_image, (100, 100))
         self.word = random.choice(words)
         self.rect = self.image.get_rect(center=(random.randint(50, WIDTH - 50), -50))
+        self.speed = 2
 
-    def move(self):
-        self.rect.y += 2
+    def move_towards(self, target_x, target_y):
+        # Calculate direction vector (dx, dy)
+        dx = target_x - self.rect.centerx
+        dy = target_y - self.rect.centery
+
+        # Calculate the distance to the target
+        distance = math.hypot(dx, dy)
+
+        if distance != 0:
+            # Normalize direction vector
+            dx /= distance
+            dy /= distance
+
+            # Move asteroid towards the target
+            self.rect.x += dx * self.speed
+            self.rect.y += dy * self.speed
 
     def draw(self, surface):
         surface.blit(self.image, self.rect)
@@ -99,6 +118,28 @@ class Score:
         text_surface = font.render(f"Score: {self.score}", True, pygame.Color("white"))
         surface.blit(text_surface, (self.rect.x + 10, self.rect.y + 5))
 
+class Volume:
+    def __init__(self, mute_image, volume_up_image, volume_down_image, pos=(10, 10), spacing=80):
+        self.images = {
+            'mute': mute_image,
+            'down': volume_down_image,
+            'up': volume_up_image
+        }
+        self.positions = {
+            'mute': pos,
+            'down': (pos[0] + spacing, pos[1]),
+            'up': (pos[0] + 2 * spacing, pos[1]),
+        }
+        self.rects = {
+            'mute': self.images['mute'].get_rect(topleft=self.positions['mute']),
+            'down': self.images['down'].get_rect(topleft=self.positions['down']),
+            'up': self.images['up'].get_rect(topleft=self.positions['up']),
+        }
+        
+    def draw(self, surface):
+        for key in self.images:
+            surface.blit(self.images[key], self.positions[key])
+        
 class Game:
     def __init__(self):
         self.state = "home"
@@ -108,8 +149,9 @@ class Game:
         self.score = Score()
         self.start_time = None
         self.selected_character = 0
-        self.home_image_rect = home_image.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 100))
-        self.button_rect = button_image.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 200))
+        self.button_clicked = False
+        self.button_rect = button_image_idle.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
+        self.volume_control = Volume(volume_mute_image_idle, volume_up_image_idle, volume_down_image_idle)
         self.character_images = [pygame.transform.scale(img, (img.get_width() * 4, img.get_height() * 4)) for img in player_images_orig]
         self.character_rects = [
             self.character_images[0].get_rect(center=(WIDTH / 2 - 200, HEIGHT / 1.45)),
@@ -132,9 +174,17 @@ class Game:
         self.character_select_image = pygame.image.load('assets/images/PNG/game_background_4/game_background_4.png').convert()
         self.character_select_image = pygame.transform.scale(self.character_select_image, (WIDTH, HEIGHT))
 
-        self.title_font = pygame.font.Font(None, 72)
-        self.title_text = self.title_font.render("Choose your Dino!", True, pygame.Color("white"))
-        self.title_rect = self.title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 200))
+        self.home_title_font = pygame.font.Font('assets/fonts/Silver.ttf', 72)
+        self.home_title_text = self.home_title_font.render('DinoType', True, pygame.Color("white"))
+        self.home_title_rect = self.home_title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 50))
+
+        self.character_title_font = pygame.font.Font('assets/fonts/Silver.ttf', 72)
+        self.character_title_text = self.character_title_font.render("Choose your Dino!", True, pygame.Color("white"))
+        self.character_title_rect = self.character_title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 200))
+
+        self.difficulty_title_font = pygame.font.Font('assets/fonts/Silver.ttf', 72)
+        self.difficulty_title_text = self.difficulty_title_font.render("Choose your difficulty!", True, pygame.Color("White"))
+        self.difficulty_title_rect = self.difficulty_title_text.get_rect(center=(WIDTH / 2, HEIGHT / 2 - 200))
 
         # Music flags
         self.home_music_playing = False
@@ -166,21 +216,28 @@ class Game:
 
     def home_screen(self):
         screen.blit(self.homescreen_image, (0, 0))
-        screen.blit(home_image, self.home_image_rect)
-        screen.blit(button_image, self.button_rect)
+        screen.blit(self.home_title_text, self.home_title_rect)
+        if self.button_clicked:
+            screen.blit(button_image_clicked, self.button_rect)
+        else:
+            screen.blit(button_image_idle, self.button_rect)
         if not self.home_music_playing:
             self.play_home_music()
+        self.volume_control.draw(screen)
 
     def character_select(self):
         screen.blit(self.character_select_image, (0, 0))
-        screen.blit(self.title_text, self.title_rect)
+        screen.blit(self.character_title_text, self.character_title_rect)
         for img, rect in zip(self.character_images, self.character_rects):
             screen.blit(img, rect)
+        self.volume_control.draw(screen)
 
     def difficulty_select(self):
         screen.fill("black")
+        screen.blit(self.difficulty_title_text, self.difficulty_title_rect)
         for img, rect in zip(self.level_images, self.level_rects):
             screen.blit(img, rect)
+            self.volume_control.draw(screen)
     
     def game_screen(self):
         screen.blit(self.background_image, (0, -60))
@@ -195,13 +252,19 @@ class Game:
             asteroid.draw(screen)
         self.textbox.draw(screen)
         self.score.draw(screen)
+        self.volume_control.draw(screen)
         if not self.game_music_playing:
             self.play_game_music()
 
     def handle_home_click(self, mouse_pos):
         if self.button_rect.collidepoint(mouse_pos):
+            self.button_clicked = True
             self.start_click.play()
+
+    def handle_mouse_up(self, mouse_pos):
+        if self.button_clicked and self.button_rect.collidepoint(mouse_pos):
             self.state = "character_selection"
+        self.button_clicked = False
 
     def handle_character_click(self, mouse_pos):
         for i, rect in enumerate(self.character_rects):
@@ -232,7 +295,7 @@ class Game:
 
     def move_asteroids(self):
         for asteroid in self.asteroids:
-            asteroid.move()
+            asteroid.move_towards(self.player.rect.centerx, self.player.rect.centery)
 
     def remove_offscreen_asteroids(self):
         self.asteroids = [asteroid for asteroid in self.asteroids if asteroid.rect.y < HEIGHT]
@@ -262,6 +325,8 @@ class Game:
                         self.handle_character_click(event.pos)
                     elif self.state == "difficulty_selection":
                         self.handle_difficulty_click(event.pos)
+                elif event.type == pygame.MOUSEBUTTONUP:
+                    self.handle_mouse_up(event.pos)
                 elif event.type == generate_asteroid_event and self.state == "game":
                     self.generate_asteroid()
                 elif event.type == pygame.KEYDOWN and self.state == "game":
