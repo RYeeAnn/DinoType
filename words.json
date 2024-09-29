@@ -14,7 +14,13 @@
                 "car", "bus", "bike", "boat", "train", "plane", "truck", "jeep", "van", "cab",
                 "run", "jump", "walk", "talk", "read", "write", "draw", "sing", "play", "laugh",
                 "happy", "sad", "angry", "glad", "kind", "mean", "good", "bad", "tall", "short",
-                "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"
+                "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+                "bread", "milk", "cheese", "egg", "butter", "rice", "cake", "pie", "soup", "juice",
+                "chair", "table", "desk", "lamp", "sofa", "clock", "mirror", "rug", "shelf", "drawer",
+                "school", "teacher", "class", "pencil", "paper", "board", "desk", "lunch", "bell", "recess",
+                "water", "river", "lake", "pond", "sea", "beach", "wave", "rain", "snow", "cloud",
+                "bake", "cook", "mix", "stir", "boil", "fry", "grill", "toast", "blend", "serve",
+                "music", "song", "dance", "band", "guitar", "drum", "piano", "violin", "flute", "note"
             ]
         },
         "2": {
@@ -27,20 +33,27 @@
                 "quality", "respect", "service", "teacher", "understand", "village", "wonder", "xenon", "youth", "zeal",
                 "basket", "capture", "demand", "effect", "future", "gentle", "honor", "ignore", "journey", "kingdom",
                 "legend", "memory", "notice", "option", "problem", "question", "record", "simple", "trust", "update",
-                "value", "wealth", "young", "zealous", "active", "bright", "clever", "dream", "enjoy", "famous"
+                "value", "wealth", "young", "zealous", "active", "bright", "clever", "dream", "enjoy", "famous",
+                "achievement", "balance", "challenge", "delight", "effort", "freedom", "glory", "hope", "insight", "justice",
+                "knowledge", "laughter", "mentor", "nurture", "opportunity", "purpose", "resolve", "strength", "thought", "unity",
+                "vision", "wisdom", "yearn", "zenith", "ambition", "bravery", "courage", "dedication", "empathy", "focus",
+                "growth", "harmony", "imagination", "journey", "kind", "loyalty", "motivation", "noble", "optimism", "passion",
+                "quest", "respectful", "serenity", "talent", "uplift", "valor", "warmth", "xylophone", "yesterday", "zealot"
             ]
         },
         "3": {
             "description": "Hard",
             "words": [
-                "abundance", "bureaucracy", "consequence", "deteriorate", "exaggerate", "facilitate", "gregarious", "hypothetical", "impartial", "juxtaposition",
-                "kaleidoscope", "litigation", "metamorphosis", "nefarious", "obfuscate", "paradigm", "quintessential", "reciprocity", "superfluous", "transcend",
-                "ubiquitous", "vicarious", "whimsical", "xenophobia", "yesterday", "zephyr", "acquiesce", "belligerent", "circumvent", "debilitate",
-                "effervescent", "fathomable", "gratuitous", "haphazard", "idiosyncrasy", "juxtapose", "kinesthetic", "lachrymose", "magnanimous", "nebulous",
-                "obsequious", "precarious", "quintessence", "recalcitrant", "sanctimonious", "temerity", "umbrage", "vociferous", "winsome", "xylophone",
-                "yearn", "zenith", "aberration", "beneficiary", "cacophony", "defenestration", "enigmatic", "fortuitous", "grandiose", "harangue",
-                "impetuous", "jocund", "knell", "luminous", "malfeasance", "nonchalant", "obstreperous", "perspicacious", "quagmire", "reprehensible",
-                "serendipity", "tantamount", "unabashed", "verisimilitude", "wanton", "xenogenesis", "yawner", "zealot", "ascertain", "benefactor"
+                "apricot", "butterfly", "canyon", "delight", "enigma", "festival", "glacier", "harmony", "island", "journey",
+                "kiwi", "lantern", "mystery", "nectar", "octagon", "palace", "quartz", "riddle", "sapphire", "telescope",
+                "umbrella", "voyage", "whistle", "xylophone", "yonder", "zealous", "avocado", "blossom", "cascade", "dolphin",
+                "ember", "fable", "galaxy", "horizon", "intrigue", "jigsaw", "keystone", "labyrinth", "marvel", "nebula",
+                "orchard", "pinnacle", "quiver", "reverie", "solstice", "tapestry", "utopia", "vista", "whimsical", "xenon",
+                "yawn", "zephyr", "amber", "brocade", "comet", "dusk", "echo", "frost", "grotto", "harbor",
+                "illusion", "jasmine", "knapsack", "lullaby", "meadow", "noble", "oasis", "plume", "quench", "radiance",
+                "serene", "thicket", "untamed", "vivid", "wander", "xenon", "yonder", "zephyr", "aspen", "bramble",
+                "crystal", "dune", "elm", "fern", "glimpse", "haven", "ivy", "jewel", "knoll", "lagoon",
+                "meander", "niche", "orbit", "pinnacle", "quartz", "reef", "sprout", "trellis", "vortex", "willow"
             ]
         }
     }

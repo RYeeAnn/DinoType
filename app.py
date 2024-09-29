@@ -3,6 +3,8 @@ import random
 import json
 import math
 from random_word import RandomWords
+import os
+import sys
 
 # Pygame setup
 pygame.init()
@@ -28,12 +30,28 @@ level_images_orig = [
     pygame.image.load('assets/images/Levels/4.png')
 ]
 
-button_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Idle.png')
-button_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Click.png')
+# Play button
+play_button_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Idle.png')
+play_button_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Rect-Text-Blue/Play-Click.png')
+
+# Asteroid image
 asteroid_image = pygame.image.load('assets/images/—Pngtree—meteorite space fire_13340354.png')
-volume_mute_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-None-Idle.png')
-volume_up_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-Three-Idle.png')
-volume_down_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Sound-Two-Idle.png')
+
+# Back button
+back_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/SolidArrow-Left-Idle.png')
+back_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/SolidArrow-Left-Click.png')
+
+# Volume mute button
+volume_mute_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Music-On-Idle.png')
+volume_mute_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Blue/Music-On-Click.png')
+
+# Home button
+home_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Magenta/Home-Idle.png')
+home_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Magenta/Home-Click.png')
+
+# Info button
+info_image_idle = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Magenta/Info-Idle.png')
+info_image_clicked = pygame.image.load('assets/images/Prinbles_Buttons_Cartoon-II (v 1.0) (9_11_2023)/png/Buttons/Square-Icon-Magenta/Info-Click.png')
 
 # Initialize the random word generator
 with open('words.json', 'r') as f:
@@ -113,6 +131,9 @@ class Score:
         if self.score > 0:
             self.score -= 1
 
+    def reset(self):
+        self.score = 0 
+
     def draw(self, surface):
         pygame.draw.rect(surface, pygame.Color("white"), self.rect, 2)
         text_surface = font.render(f"Score: {self.score}", True, pygame.Color("white"))
@@ -144,14 +165,15 @@ class Game:
     def __init__(self):
         self.state = "home"
         self.player = None
+        self.lives = 3
+        self.is_game_over = False
         self.asteroids = []
         self.textbox = TextBox()
         self.score = Score()
         self.start_time = None
         self.selected_character = 0
         self.button_clicked = False
-        self.button_rect = button_image_idle.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
-        self.volume_control = Volume(volume_mute_image_idle, volume_up_image_idle, volume_down_image_idle)
+        self.play_button_rect = play_button_image_idle.get_rect(center=(WIDTH / 2, HEIGHT / 2 + 50))
         self.character_images = [pygame.transform.scale(img, (img.get_width() * 4, img.get_height() * 4)) for img in player_images_orig]
         self.character_rects = [
             self.character_images[0].get_rect(center=(WIDTH / 2 - 200, HEIGHT / 1.45)),
@@ -173,6 +195,8 @@ class Game:
         self.homescreen_image = pygame.transform.scale(self.homescreen_image, (WIDTH, HEIGHT))
         self.character_select_image = pygame.image.load('assets/images/PNG/game_background_4/game_background_4.png').convert()
         self.character_select_image = pygame.transform.scale(self.character_select_image, (WIDTH, HEIGHT))
+        self.info_image = pygame.image.load('assets/images/Space_Game_GUI_PNG/PNG/Main_Menu/BG.png').convert()
+        self.info_image = pygame.transform.scale(self.info_image, (WIDTH, HEIGHT))
 
         self.home_title_font = pygame.font.Font('assets/fonts/Silver.ttf', 72)
         self.home_title_text = self.home_title_font.render('DinoType', True, pygame.Color("white"))
@@ -195,15 +219,70 @@ class Game:
         self.character_click = pygame.mixer.Sound('assets/sound/UI Soundpack/MP3/Retro8.mp3')
         self.difficulty_click = pygame.mixer.Sound('assets/sound/UI Soundpack/MP3/Retro10.mp3')
 
+        # Mute button
+        self.volume_mute_image = pygame.transform.scale(volume_mute_image_idle, (65, 65))
+        self.button_mute_rect = self.volume_mute_image.get_rect(topleft=(10, 10))
+
+        # Back button
+        self.back_image = pygame.transform.scale(back_image_idle, (65, 65))
+        self.button_back_rect = self.back_image.get_rect(topleft=(10, 10))
+
+        # Home button
+        self.home_image = pygame.transform.scale(home_image_idle, (65,65))
+        self.button_home_rect = self.home_image.get_rect(topleft=(10, 10))
+
+        # Info button
+        self.info_image = pygame.transform.scale(info_image_idle, (70, 65))
+        self.button_info_rect = self.info_image.get_rect(topright=(WIDTH - 10, 10))
+
+        # Music pause state
+        self.music_paused = False
+
+        # Pop-up settings
+        self.show_info_popup = False  # Pop-up initially hidden
+        self.popup_width, self.popup_height = 300, 200
+        self.popup_surface = pygame.Surface((self.popup_width, self.popup_height))
+        self.popup_surface.fill((50, 50, 50))  # Dark grey background
+        self.popup_rect = self.popup_surface.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+
+        # Example text for the pop-up
+        self.popup_font = pygame.font.Font(None, 24)
+
+        # Split the text into lines for the pop-up
+        popup_lines = [
+            "Type racer inspired game",
+            "created by Ryan Yee",
+        ]
+
+        # Calculate the starting y position for the text
+        line_height = self.popup_font.get_height() + 5  # Adding some space between lines
+        start_y = (self.popup_height - (len(popup_lines) * line_height)) // 2  # Center vertically
+
+        # Render each line of text and add it to the surface
+        for i, line in enumerate(popup_lines):
+            rendered_text = self.popup_font.render(line, True, (255, 255, 255))
+            text_rect = rendered_text.get_rect(center=(self.popup_width // 2, start_y + i * line_height))
+            self.popup_surface.blit(rendered_text, text_rect)
+
+        # GameOver Button properties
+        self.play_again_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2, 200, 50)
+        self.home_button = pygame.Rect(WIDTH // 2 - 100, HEIGHT // 2 + 70, 200, 50)
+        
+        # GameOver Button text and font
+        self.button_font = pygame.font.Font(None, 36)
+
+
     def play_home_music(self):
         pygame.mixer.music.load('assets/music/2016_ Clement Panchout_ Life is full of Joy.wav')
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.2)
         self.home_music_playing = True
         self.game_music_playing = False
 
     def play_game_music(self):
         pygame.mixer.music.load('assets/music/2014 07_ Clement Panchout_ Partycles OST_ Cheerful Title Screen.wav')
         pygame.mixer.music.play(-1)
+        pygame.mixer.music.set_volume(0.2)
         self.home_music_playing = False
         self.game_music_playing = True
 
@@ -213,31 +292,68 @@ class Game:
             elapsed_time = (current_time - self.start_time) // 1000
             timer_text = font.render(f"Timer: {elapsed_time} seconds", True, pygame.Color("black"))
             surface.blit(timer_text, (1050, 10))
+    
+    def reset_timer(self):
+        self.start_time = pygame.time.get_ticks()
+
+    def draw_mute_button(self, screen):
+        if self.button_clicked:
+            screen.blit(volume_mute_image_clicked, self.button_mute_rect)
+        else:
+            screen.blit(volume_mute_image_idle, self.button_mute_rect)
+
+    def draw_back_button(self, screen):
+        if self.button_clicked:
+            screen.blit(back_image_clicked, self.button_back_rect)
+        else:
+            screen.blit(back_image_idle, self.button_back_rect)
+
+    def draw_home_button(self, screen):
+        if self.button_clicked:
+            screen.blit(home_image_clicked, self.button_home_rect)
+        else:
+            screen.blit(home_image_idle, self.button_home_rect)
 
     def home_screen(self):
         screen.blit(self.homescreen_image, (0, 0))
         screen.blit(self.home_title_text, self.home_title_rect)
+
+         # Draw the play button
         if self.button_clicked:
-            screen.blit(button_image_clicked, self.button_rect)
+            screen.blit(play_button_image_clicked, self.play_button_rect)
         else:
-            screen.blit(button_image_idle, self.button_rect)
+            screen.blit(play_button_image_idle, self.play_button_rect)
+        
+        # Draw the Info button
+        if self.button_clicked:
+            screen.blit(info_image_clicked, self.button_info_rect)
+        else:
+            screen.blit(info_image_idle, self.button_info_rect)
+
+        # Draw the pop-up if it's visible
+        if self.show_info_popup:
+            screen.blit(self.popup_surface, self.popup_rect)
+
+        # Mute button
         if not self.home_music_playing:
             self.play_home_music()
-        self.volume_control.draw(screen)
+        self.draw_mute_button(screen)
 
     def character_select(self):
         screen.blit(self.character_select_image, (0, 0))
         screen.blit(self.character_title_text, self.character_title_rect)
         for img, rect in zip(self.character_images, self.character_rects):
             screen.blit(img, rect)
-        self.volume_control.draw(screen)
+        self.draw_mute_button(screen)
+        self.draw_back_button(screen)
 
     def difficulty_select(self):
         screen.fill("black")
         screen.blit(self.difficulty_title_text, self.difficulty_title_rect)
         for img, rect in zip(self.level_images, self.level_rects):
             screen.blit(img, rect)
-            self.volume_control.draw(screen)
+        self.draw_mute_button(screen)    
+        self.draw_back_button(screen)
     
     def game_screen(self):
         screen.blit(self.background_image, (0, -60))
@@ -252,19 +368,110 @@ class Game:
             asteroid.draw(screen)
         self.textbox.draw(screen)
         self.score.draw(screen)
-        self.volume_control.draw(screen)
+        self.draw_mute_button(screen)
         if not self.game_music_playing:
             self.play_game_music()
+        self.draw_home_button(screen)
+        self.draw_hud(screen)
 
-    def handle_home_click(self, mouse_pos):
-        if self.button_rect.collidepoint(mouse_pos):
+        # Handle game over (e.g., show game over screen or restart the game)
+        if self.is_game_over:
+            self.show_game_over_screen()
+            self.reset_game()
+
+    def draw_hud(self, screen):
+        lives_text = self.popup_font.render(f"Lives: {self.lives}", True, (255, 255, 255))
+        screen.blit(lives_text, (715, 657))  # Position it on the screen
+
+    def handle_game_over_input(self):
+        waiting = True
+        while waiting:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    mouse_pos = pygame.mouse.get_pos()
+                    if self.play_again_button.collidepoint(mouse_pos):
+                        self.reset_game()  # Reset the game and start over
+                        waiting = False
+                    elif self.home_button.collidepoint(mouse_pos):
+                        self.reset_game()  # Reset the game variables
+                        self.state = "home"  # Go back to home screen
+                        waiting = False
+
+
+    def show_game_over_screen(self):
+        screen.fill((0, 0, 0))  # Fill the screen with black
+
+        # Draw "Game Over" text
+        game_over_text = self.popup_font.render("Game Over", self.score.draw(screen), True, (255, 0, 0))
+        screen.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 100))
+
+        # Draw the "Play Again" button
+        pygame.draw.rect(screen, (0, 128, 0), self.play_again_button)
+        play_again_text = self.button_font.render("Play Again", True, (255, 255, 255))
+        screen.blit(play_again_text, (self.play_again_button.x + (self.play_again_button.width - play_again_text.get_width()) // 2,
+                                      self.play_again_button.y + (self.play_again_button.height - play_again_text.get_height()) // 2))
+
+        # Draw the "Go Home" button
+        pygame.draw.rect(screen, (128, 0, 0), self.home_button)
+        home_text = self.button_font.render("Go Home", True, (255, 255, 255))
+        screen.blit(home_text, (self.home_button.x + (self.home_button.width - home_text.get_width()) // 2,
+                                self.home_button.y + (self.home_button.height - home_text.get_height()) // 2))
+
+        pygame.display.flip()
+        
+        # Wait for user input
+        self.handle_game_over_input()
+        self.reset_game()  # Optionally reset the game here
+
+    def reset_game(self):
+        self.lives = 3
+        self.is_game_over = False
+        self.asteroids = []  # Clear asteroids
+        self.score.reset()
+        self.reset_timer()
+
+    def handle_mute_click(self, mouse_pos):
+        if self.button_mute_rect.collidepoint(mouse_pos):
+            if self.music_paused:
+                pygame.mixer.music.unpause()
+            else:
+                pygame.mixer.music.pause()
+            self.music_paused = not self.music_paused
             self.button_clicked = True
             self.start_click.play()
 
-    def handle_mouse_up(self, mouse_pos):
-        if self.button_clicked and self.button_rect.collidepoint(mouse_pos):
-            self.state = "character_selection"
+    def handle_back_click(self, mouse_pos):
+        if self.button_back_rect.collidepoint(mouse_pos):
+            self.button_clicked = True
+            self.start_click.play()
+
+            if self.state == "character_selection":
+                self.state = "home"
+            elif self.state == "difficulty_selection":
+                self.state = "character_selection"
+
+    # This is while playing the game, you can go back to Home.
+    def handle_home_button_click(self, mouse_pos):
+        if self.button_home_rect.collidepoint(mouse_pos):
+            self.button_clicked = True
+            self.start_click.play()
+            self.__init__()
+            self.state = "home"
+
+    def handle_home_click(self, mouse_pos):
         self.button_clicked = False
+        if self.play_button_rect.collidepoint(mouse_pos):
+            self.button_clicked = True
+            self.start_click.play()
+            self.state = "character_selection"
+
+        elif self.button_info_rect.collidepoint(mouse_pos):
+            self.start_click.play()
+            self.show_info_popup = not self.show_info_popup
+
 
     def handle_character_click(self, mouse_pos):
         for i, rect in enumerate(self.character_rects):
@@ -298,7 +505,18 @@ class Game:
             asteroid.move_towards(self.player.rect.centerx, self.player.rect.centery)
 
     def remove_offscreen_asteroids(self):
-        self.asteroids = [asteroid for asteroid in self.asteroids if asteroid.rect.y < HEIGHT]
+        new_asteroids = []
+        for asteroid in self.asteroids:
+            if asteroid.rect.y >= HEIGHT:
+                continue  # Ignore asteroids that are off the screen
+            if asteroid.rect.colliderect(self.player.rect):
+                self.lives -= 1  # Decrease lives if there's a collision
+                if self.lives <= 0:
+                    self.is_game_over = True  # Trigger game over if lives are 0
+            else:
+                new_asteroids.append(asteroid)  # Keep the asteroid if no collision
+        
+        self.asteroids = new_asteroids
 
     def handle_typing(self, input_text):
         for asteroid in self.asteroids:
@@ -311,7 +529,7 @@ class Game:
 
     def run(self):
         generate_asteroid_event = pygame.USEREVENT + 1
-        pygame.time.set_timer(generate_asteroid_event, 1000)  # Generate a new asteroid every 2 seconds
+        pygame.time.set_timer(generate_asteroid_event, 800)  # Generate a new asteroid every () seconds
         running = True
 
         while running:
@@ -325,8 +543,14 @@ class Game:
                         self.handle_character_click(event.pos)
                     elif self.state == "difficulty_selection":
                         self.handle_difficulty_click(event.pos)
+
+                    self.handle_mute_click(event.pos)
+                    self.handle_back_click(event.pos)
+                    if self.state == "game":
+                        self.handle_home_button_click(event.pos)
+                    
                 elif event.type == pygame.MOUSEBUTTONUP:
-                    self.handle_mouse_up(event.pos)
+                    self.handle_home_click(event.pos)
                 elif event.type == generate_asteroid_event and self.state == "game":
                     self.generate_asteroid()
                 elif event.type == pygame.KEYDOWN and self.state == "game":
