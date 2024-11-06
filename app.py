@@ -250,7 +250,7 @@ class Game:
 
         # Split the text into lines for the pop-up
         popup_lines = [
-            "Type racer inspired game",
+            "Type racer",
             "created by Ryan Yee",
         ]
 
@@ -405,7 +405,7 @@ class Game:
         screen.fill((0, 0, 0))  # Fill the screen with black
 
         # Draw "Game Over" text
-        game_over_text = self.popup_font.render("Game Over", self.score.draw(screen), True, (255, 0, 0))
+        game_over_text = self.popup_font.render("Game Over, You failed to prevent the extinction of dinosaurs with your slow typing...", self.score.draw(screen), True, (255, 0, 0))
         screen.blit(game_over_text, (WIDTH // 2 - game_over_text.get_width() // 2, HEIGHT // 2 - 100))
 
         # Draw the "Play Again" button
